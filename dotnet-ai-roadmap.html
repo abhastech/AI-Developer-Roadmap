@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>.NET Fullstack → AI Augmented Developer Roadmap</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent: #7c3aed;
+    --accent2: #a855f7;
+    --accent3: #c084fc;
+    --green: #22c55e;
+    --cyan: #06b6d4;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --glow: rgba(124, 58, 237, 0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #1a0533 50%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% -20%, rgba(124,58,237,.4) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-inner { max-width: 1400px; margin: auto; position: relative; z-index: 1; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(124,58,237,.18); border: 1px solid rgba(124,58,237,.4);
+    color: var(--accent3); font-size: 11px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px; letter-spacing: .6px;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  h1 {
+    font-size: clamp(22px,4vw,38px); font-weight: 800; line-height: 1.2;
+    background: linear-gradient(90deg, #fff 30%, var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .stats { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .stat { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    height: calc(100vh - 130px);
+    max-width: 1400px; margin: auto;
+  }
+
+  /* ── Tree Panel ── */
+  .tree-panel {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 16px 0;
+  }
+  .tree-panel::-webkit-scrollbar { width: 6px; }
+  .tree-panel::-webkit-scrollbar-track { background: transparent; }
+  .tree-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .phase-header {
+    padding: 10px 20px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px;
+  }
+  .phase-header span { flex: 1; height: 1px; background: var(--border); }
+
+  /* tree node */
+  .node { position: relative; }
+  .node-btn {
+    width: 100%; background: none; border: none;
+    padding: 9px 20px 9px 0;
+    cursor: pointer; text-align: left;
+    display: flex; align-items: center; gap: 0;
+    transition: background .15s;
+    color: var(--text);
+  }
+  .node-btn:hover { background: rgba(124,58,237,.08); }
+  .node-btn.active {
+    background: rgba(124,58,237,.18);
+    border-right: 2px solid var(--accent);
+  }
+
+  /* indent lines */
+  .node-indent {
+    flex-shrink: 0;
+    display: flex; align-items: stretch;
+  }
+  .indent-seg {
+    width: 20px; flex-shrink: 0;
+    display: flex; justify-content: center;
+    position: relative;
+  }
+  .indent-seg.has-line::before {
+    content: '';
+    position: absolute; top: 0; bottom: 0; left: 50%;
+    width: 1px; background: var(--border);
+  }
+  .indent-seg.is-last::before { bottom: 50%; }
+  .indent-seg.has-line::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    width: 8px; height: 1px; background: var(--border);
+  }
+  .indent-seg:not(.has-line)::after { display: none; }
+
+  .node-toggle {
+    width: 18px; height: 18px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; margin-right: 8px; margin-left: 4px;
+    font-size: 10px; color: var(--muted);
+    transition: transform .2s, background .2s;
+  }
+  .node-btn.active .node-toggle,
+  .node-btn:hover .node-toggle { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .node-icon {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0; margin-right: 9px;
+  }
+  .node-label { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.3; }
+  .node-tag {
+    font-size: 9px; font-weight: 700; padding: 2px 6px;
+    border-radius: 10px; letter-spacing: .4px; text-transform: uppercase;
+    flex-shrink: 0; margin-right: 8px;
+  }
+
+  /* children container */
+  .children { overflow: hidden; transition: max-height .3s ease; }
+  .children.collapsed { max-height: 0 !important; }
+
+  /* ── Detail Panel ── */
+  .detail-panel {
+    overflow-y: auto;
+    padding: 32px 40px;
+    background: var(--bg);
+  }
+  .detail-panel::-webkit-scrollbar { width: 6px; }
+  .detail-panel::-webkit-scrollbar-track { background: transparent; }
+  .detail-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; gap: 16px; opacity: .4;
+    text-align: center;
+  }
+  .empty-icon { font-size: 64px; }
+  .empty-state h3 { font-size: 18px; }
+  .empty-state p { font-size: 13px; color: var(--muted); }
+
+  .detail-card { display: none; }
+  .detail-card.visible { display: block; animation: fadeUp .25s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .dc-header {
+    display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px;
+  }
+  .dc-icon-big {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .dc-title h2 { font-size: 22px; font-weight: 700; }
+  .dc-title p { color: var(--muted); font-size: 14px; margin-top: 4px; line-height: 1.5; }
+  .dc-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 20px; border: 1px solid;
+  }
+
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .learn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; }
+  .learn-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    transition: border-color .2s, transform .15s;
+  }
+  .learn-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .learn-item-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .learn-item-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .tools-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tool-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 12px; font-weight: 500;
+    transition: border-color .2s;
+  }
+  .tool-pill:hover { border-color: var(--accent2); }
+  .tool-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+    border-radius: 1px;
+  }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-item::before {
+    content: ''; position: absolute; left: -20px; top: 5px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .tl-title { font-size: 13px; font-weight: 600; }
+  .tl-desc { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+  .resource-list { display: flex; flex-direction: column; gap: 8px; }
+  .resource-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 12px;
+  }
+  .resource-type {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; letter-spacing: .4px; text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .progress-bar-wrap { background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 4px; }
+  .progress-bar { height: 100%; border-radius: 4px; transition: width 1s ease; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="badge">🚀 Career Roadmap 2025</div>
+    <h1>.NET Fullstack → AI Augmented Developer</h1>
+    <p class="subtitle">A structured learning path to evolve from a .NET Fullstack Engineer into an AI-powered developer</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-dot" style="background:#22c55e"></span>Foundation Skills</div>
+      <div class="stat"><span class="stat-dot" style="background:#06b6d4"></span>AI / ML Integration</div>
+      <div class="stat"><span class="stat-dot" style="background:#f59e0b"></span>Advanced AI Patterns</div>
+      <div class="stat"><span class="stat-dot" style="background:#a855f7"></span>Expert & Architecture</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Tree Panel -->
+  <div class="tree-panel" id="treePanel"></div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🌳</div>
+      <h3>Select a topic to explore</h3>
+      <p>Click any node in the tree to view<br>detailed learning content</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+const roadmap = [
+  {
+    id: 'phase1', label: 'Phase 1 — Foundation Mastery', icon: '🏗️', color: '#22c55e', tag: 'Foundation', tagColor: '#dcfce7', tagText: '#15803d',
+    desc: 'Solidify your existing .NET fullstack skills before adding AI capabilities',
+    phase: true,
+    children: [
+      {
+        id: 'dotnet-core', label: '.NET Core & C# Mastery', icon: '💜', color: '#7c3aed',
+        desc: 'Deep dive into modern C# features and .NET 8+ capabilities that enable AI-ready applications.',
+        duration: '4–6 weeks', level: 'Intermediate', tag: 'Core',
+        learn: [
+          { title: 'C# 12+ Features', desc: 'Records, primary constructors, collection expressions, required members, pattern matching advancements.' },
+          { title: '.NET 8 / 9 Runtime', desc: 'Native AOT compilation, performance improvements, Minimal APIs, and new hosting model.' },
+          { title: 'Async/Await Deep Dive', desc: 'ValueTask, IAsyncEnumerable, async streams — critical for streaming AI responses.' },
+          { title: 'Memory & Span<T>', desc: 'Span<T>, Memory<T>, ArrayPool for high-performance buffer management.' },
+          { title: 'Dependency Injection', desc: 'Keyed services, scoped lifetimes, factory patterns, and testing strategies.' },
+          { title: 'Reflection & Source Gen', desc: 'Source generators for compile-time code gen — used extensively in AI SDKs.' },
+        ],
+        tools: ['Visual Studio 2022', 'VS Code + C# Dev Kit', 'dotnet CLI', 'BenchmarkDotNet', 'JetBrains Rider'],
+        timeline: [
+          { title: 'Week 1–2', desc: 'Review C# 10–12 features via official docs and build mini-projects.' },
+          { title: 'Week 3–4', desc: 'Deep dive async patterns — build a streaming HTTP client with IAsyncEnumerable.' },
+          { title: 'Week 5–6', desc: 'Source generators & performance profiling with BenchmarkDotNet.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'Microsoft C# Language Reference', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Book', label: 'C# in Depth by Jon Skeet', color: '#fef3c7', text: '#92400e' },
+          { type: 'Course', label: 'C# Intermediate — Mosh Hamedani', color: '#f3e8ff', text: '#6d28d9' },
+        ]
+      },
+      {
+        id: 'aspnet', label: 'ASP.NET Core Advanced', icon: '🌐', color: '#06b6d4',
+        desc: 'Master advanced ASP.NET Core patterns including minimal APIs, gRPC, and SignalR for real-time AI streaming.',
+        duration: '3–4 weeks', level: 'Intermediate', tag: 'Backend',
+        learn: [
+          { title: 'Minimal APIs', desc: 'Route groups, filters, endpoint metadata, and OpenAPI integration.' },
+          { title: 'SignalR & WebSockets', desc: 'Real-time communication for streaming AI responses to the frontend.' },
+          { title: 'gRPC Services', desc: 'Proto definitions, server streaming for AI pipelines, gRPC-Web for browsers.' },
+          { title: 'Middleware Pipeline', desc: 'Custom middleware, endpoint filters, short-circuit middleware.' },
+          { title: 'Output Caching', desc: 'Semantic caching strategies for expensive AI calls.' },
+          { title: 'Health Checks & OpenTelemetry', desc: 'Observability for AI-integrated APIs — traces, metrics, logs.' },
+        ],
+        tools: ['Postman / Bruno', 'Swagger / Scalar', 'k6 (load testing)', 'OpenTelemetry Collector', 'Aspire Dashboard'],
+        timeline: [
+          { title: 'Week 1', desc: 'Minimal APIs patterns, routing, validation, and OpenAPI generation.' },
+          { title: 'Week 2', desc: 'SignalR Hub for streaming — build a chat endpoint that streams tokens.' },
+          { title: 'Week 3–4', desc: 'gRPC streaming + OpenTelemetry tracing for all endpoints.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'ASP.NET Core Documentation', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Course', label: '.NET Aspire + Minimal APIs — Microsoft Learn', color: '#f3e8ff', text: '#6d28d9' },
+          { type: 'Video', label: 'Nick Chapsas — YouTube (.NET deep dives)', color: '#dcfce7', text: '#15803d' },
+        ]
+      },
+      {
+        id: 'ef-data', label: 'Entity Framework Core & Data', icon: '🗄️', color: '#f59e0b',
+        desc: 'Advanced EF Core patterns and data strategies including vector database fundamentals needed for AI.',
+        duration: '3 weeks', level: 'Intermediate', tag: 'Data',
+        learn: [
+          { title: 'EF Core 8+ Features', desc: 'Complex type mapping, raw SQL with FromSql, JSON columns, primitive collections.' },
+          { title: 'Query Optimization', desc: 'Compiled queries, split queries, lazy/eager loading trade-offs, execution plans.' },
+          { title: 'CQRS + Repository', desc: 'Command/Query separation with MediatR — foundation for AI command pipelines.' },
+          { title: 'Vector Columns (pgvector)', desc: 'Storing and querying embeddings in PostgreSQL using pgvector + EF Core.' },
+          { title: 'Redis & Distributed Cache', desc: 'Semantic cache layer to reduce redundant AI API calls.' },
+          { title: 'Event Sourcing Basics', desc: 'Append-only logs for AI audit trails and replay capabilities.' },
+        ],
+        tools: ['PostgreSQL + pgvector', 'Redis', 'Azure SQL', 'pgAdmin', 'MediatR', 'Dapper'],
+        timeline: [
+          { title: 'Week 1', desc: 'EF Core 8 new features, JSON columns, primitive collections in real projects.' },
+          { title: 'Week 2', desc: 'CQRS with MediatR — wire up full pipeline with pipeline behaviors.' },
+          { title: 'Week 3', desc: 'Install pgvector, store 384-dim embeddings, do cosine similarity queries.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'EF Core What\'s New 8.0', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Course', label: 'Dometrain — EF Core by Steve Smith', color: '#f3e8ff', text: '#6d28d9' },
+          { type: 'Article', label: 'pgvector docs + .NET integration guide', color: '#fef3c7', text: '#92400e' },
+        ]
+      },
+      {
+        id: 'frontend-advanced', label: 'Frontend — React/Blazor Advanced', icon: '⚛️', color: '#f43f5e',
+        desc: 'Advanced frontend patterns optimized for rendering streaming AI content and conversational UIs.',
+        duration: '3–4 weeks', level: 'Intermediate', tag: 'Frontend',
+        learn: [
+          { title: 'React 18+ Patterns', desc: 'Suspense, concurrent rendering, useOptimistic for AI optimistic updates.' },
+          { title: 'Streaming UI', desc: 'Reading Server-Sent Events (SSE) and rendering streaming LLM tokens progressively.' },
+          { title: 'Blazor 8 (SSR + WASM)', desc: 'Interactive render modes, streaming rendering, Blazor Web App model.' },
+          { title: 'State Management', desc: 'Zustand / Redux Toolkit for complex AI chat state with history management.' },
+          { title: 'Markdown Rendering', desc: 'react-markdown + syntax highlighting for AI code responses.' },
+          { title: 'Web Speech API', desc: 'Voice input/output for AI assistants built in-browser.' },
+        ],
+        tools: ['React 18', 'Blazor 8', 'TypeScript', 'Vite', 'Zustand', 'TailwindCSS'],
+        timeline: [
+          { title: 'Week 1', desc: 'React 18 concurrent features + build a streaming text renderer using SSE.' },
+          { title: 'Week 2', desc: 'Blazor SSR + interactive islands — streaming AI content from SignalR.' },
+          { title: 'Week 3–4', desc: 'Full chat UI with markdown, code highlighting, and voice input/output.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'React 18 New Features', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Docs', label: 'Blazor 8 Render Modes — Microsoft Docs', color: '#fef3c7', text: '#92400e' },
+          { type: 'Course', label: 'Josh Comeau — The Joy of React', color: '#f3e8ff', text: '#6d28d9' },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'phase2', label: 'Phase 2 — AI Fundamentals', icon: '🤖', color: '#06b6d4', tag: 'AI Core', tagColor: '#cffafe', tagText: '#0e7490',
+    desc: 'Learn core AI/ML concepts and integrate LLMs into .NET applications',
+    phase: true,
+    children: [
+      {
+        id: 'ai-concepts', label: 'AI & ML Core Concepts', icon: '🧠', color: '#a855f7',
+        desc: 'Understand the fundamental concepts behind modern AI systems — from LLMs to embeddings to prompt engineering.',
+        duration: '2–3 weeks', level: 'Beginner → Intermediate', tag: 'Concepts',
+        learn: [
+          { title: 'How LLMs Work', desc: 'Transformers architecture, tokenization, attention mechanisms, temperature & sampling.' },
+          { title: 'Tokens & Context Windows', desc: 'Token counting, context limits, chunking strategies for long documents.' },
+          { title: 'Embeddings & Vectors', desc: 'Text embeddings, semantic similarity, cosine distance, dimensionality reduction.' },
+          { title: 'Prompt Engineering', desc: 'Zero-shot, few-shot, chain-of-thought, role prompting, system prompts.' },
+          { title: 'RAG Architecture', desc: 'Retrieval-Augmented Generation pattern — the core pattern for enterprise AI.' },
+          { title: 'Model Types', desc: 'Chat models vs completion vs embedding models, multimodal capabilities.' },
+        ],
+        tools: ['OpenAI Playground', 'Azure AI Studio', 'Hugging Face', 'tiktoken', 'LM Studio (local models)'],
+        timeline: [
+          { title: 'Week 1', desc: 'Read "Attention is All You Need" summary; experiment in OpenAI Playground.' },
+          { title: 'Week 2', desc: 'Embedding experiments — embed sentences, visualize clusters in 2D with PCA.' },
+          { title: 'Week 3', desc: 'Build 5 different prompting strategies for the same task; compare results.' },
+        ],
+        resources: [
+          { type: 'Course', label: 'DeepLearning.AI — ChatGPT Prompt Engineering', color: '#f3e8ff', text: '#6d28d9' },
+          { type: 'Video', label: 'Andrej Karpathy — "Let\'s build GPT from scratch"', color: '#dcfce7', text: '#15803d' },
+          { type: 'Book', label: 'Hands-On Large Language Models (O\'Reilly)', color: '#fef3c7', text: '#92400e' },
+        ]
+      },
+      {
+        id: 'semantic-kernel', label: 'Microsoft Semantic Kernel', icon: '🔮', color: '#7c3aed',
+        desc: 'Microsoft\'s official AI orchestration SDK for .NET — the primary tool for building enterprise AI apps in the .NET ecosystem.',
+        duration: '4–5 weeks', level: 'Intermediate', tag: 'SDK',
+        learn: [
+          { title: 'Kernel & Services Setup', desc: 'KernelBuilder, AI service registration (OpenAI/Azure OpenAI/local models).' },
+          { title: 'Plugins & Functions', desc: 'KernelFunction, native functions vs semantic functions, auto-invocation.' },
+          { title: 'Chat Completion', desc: 'ChatHistory, streaming responses, role-based prompts, function calling.' },
+          { title: 'Planners (new)', desc: 'FunctionChoiceBehavior, auto function invocation, step planning.' },
+          { title: 'Memory & Vector Stores', desc: 'IVectorStore abstraction, in-memory/Redis/pgvector/Azure AI Search backends.' },
+          { title: 'Filters & Middleware', desc: 'IPromptRenderFilter, IFunctionInvocationFilter for logging/guardrails/caching.' },
+        ],
+        tools: ['Semantic Kernel NuGet', 'Azure OpenAI', 'OpenAI API', 'Ollama (local)', 'SK Handlebars templates'],
+        timeline: [
+          { title: 'Week 1', desc: 'Setup SK, make first chat completion, understand kernel pipeline.' },
+          { title: 'Week 2', desc: 'Build 3 native plugins (weather, calendar, database search).' },
+          { title: 'Week 3', desc: 'Implement auto-invoke planner that chains plugins automatically.' },
+          { title: 'Week 4–5', desc: 'Vector store integration + memory plugin for context-aware conversations.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'learn.microsoft.com/semantic-kernel', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Repo', label: 'microsoft/semantic-kernel on GitHub', color: '#dcfce7', text: '#15803d' },
+          { type: 'Video', label: 'SK on .NET YouTube channel (official)', color: '#f3e8ff', text: '#6d28d9' },
+        ]
+      },
+      {
+        id: 'openai-sdk', label: 'Azure OpenAI & OpenAI SDK', icon: '⚡', color: '#f59e0b',
+        desc: 'Direct integration with OpenAI and Azure OpenAI services using the official .NET SDK.',
+        duration: '2–3 weeks', level: 'Beginner → Intermediate', tag: 'API',
+        learn: [
+          { title: 'OpenAI .NET SDK', desc: 'Chat completions, streaming, embeddings, vision, function calling API.' },
+          { title: 'Azure OpenAI Service', desc: 'Deployment management, REST vs SDK, RBAC authentication, private endpoints.' },
+          { title: 'Function Calling', desc: 'Tool definitions, parallel tool calls, required vs auto tool choice.' },
+          { title: 'Assistants API', desc: 'Threads, runs, file_search tool, code_interpreter tool, streaming runs.' },
+          { title: 'Vision & Multimodal', desc: 'GPT-4o image analysis — base64 images and URL references in API calls.' },
+          { title: 'Token & Cost Optimization', desc: 'Batch API, prompt caching, logprobs, max_tokens tuning.' },
+        ],
+        tools: ['OpenAI .NET SDK', 'Azure SDK for .NET', 'Azure Portal', 'Managed Identity', 'API cost tracking'],
+        timeline: [
+          { title: 'Week 1', desc: 'All OpenAI API endpoints — chat, embed, image, tts, whisper in .NET.' },
+          { title: 'Week 2', desc: 'Azure OpenAI deployment + RBAC + private endpoint setup.' },
+          { title: 'Week 3', desc: 'Function calling — build a .NET app that autonomously calls your EF Core queries.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'Azure OpenAI Service Documentation', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Repo', label: 'openai/openai-dotnet on GitHub', color: '#dcfce7', text: '#15803d' },
+          { type: 'Course', label: 'Microsoft Learn — AI Engineer path', color: '#f3e8ff', text: '#6d28d9' },
+        ]
+      },
+      {
+        id: 'vector-db', label: 'Vector Databases & RAG', icon: '🗃️', color: '#06b6d4',
+        desc: 'Build production-quality Retrieval-Augmented Generation systems that connect your data to LLMs.',
+        duration: '3–4 weeks', level: 'Intermediate', tag: 'RAG',
+        learn: [
+          { title: 'Vector DB Options', desc: 'pgvector (PostgreSQL), Azure AI Search, Qdrant, Pinecone, Chroma — tradeoffs.' },
+          { title: 'Chunking Strategies', desc: 'Fixed-size, semantic, sentence-window, hierarchical chunking for documents.' },
+          { title: 'Embedding Models', desc: 'text-embedding-3-small vs large, Azure embed, local models (BGE, nomic-embed).' },
+          { title: 'Retrieval Techniques', desc: 'Cosine similarity, hybrid search (BM25 + vector), reranking with cross-encoders.' },
+          { title: 'RAG Pipeline (.NET)', desc: 'Document ingestion worker, retrieval service, context injection into prompts.' },
+          { title: 'Evaluation', desc: 'RAGAS metrics: faithfulness, answer relevancy, context recall. evals in .NET.' },
+        ],
+        tools: ['pgvector', 'Azure AI Search', 'Qdrant', 'SK Vector Store', 'LlamaIndex concepts'],
+        timeline: [
+          { title: 'Week 1', desc: 'Set up pgvector; write ingestion pipeline for PDF documents.' },
+          { title: 'Week 2', desc: 'Build retrieval service + compare different chunking strategies.' },
+          { title: 'Week 3', desc: 'Add hybrid search + reranking; integrate with SK for full RAG chat.' },
+          { title: 'Week 4', desc: 'Evaluate RAG quality with RAGAS; tune for your use case.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'Azure AI Search RAG Tutorial', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Article', label: 'pgvector + .NET — Tim Deschryver', color: '#fef3c7', text: '#92400e' },
+          { type: 'Course', label: 'DeepLearning.AI — Building RAG Systems', color: '#f3e8ff', text: '#6d28d9' },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'phase3', label: 'Phase 3 — AI Engineering Patterns', icon: '⚙️', color: '#f59e0b', tag: 'Patterns', tagColor: '#fef3c7', tagText: '#b45309',
+    desc: 'Advanced AI architecture patterns for production-grade intelligent applications',
+    phase: true,
+    children: [
+      {
+        id: 'agents', label: 'AI Agents & Agentic Workflows', icon: '🕹️', color: '#a855f7',
+        desc: 'Build autonomous AI agents that plan, use tools, and complete multi-step tasks with minimal human intervention.',
+        duration: '4–5 weeks', level: 'Advanced', tag: 'Agents',
+        learn: [
+          { title: 'ReAct Pattern', desc: 'Reason + Act loop — LLM reasons about tools, calls tools, reasons about results.' },
+          { title: 'Tool / Function Calling', desc: 'Defining schemas, parallel tool calls, iterative refinement, error recovery.' },
+          { title: 'SK Agent Framework', desc: 'ChatCompletionAgent, AgentGroupChat, multi-agent orchestration.' },
+          { title: 'Memory Types', desc: 'In-context, external vector memory, episodic memory, procedural memory.' },
+          { title: 'Agent Guardrails', desc: 'Budget tokens, max iterations, confidence thresholds, human-in-the-loop.' },
+          { title: 'Multi-Agent Patterns', desc: 'Orchestrator + specialist agents, debate pattern, critic-reviser pattern.' },
+        ],
+        tools: ['SK AgentGroupChat', 'AutoGen (Python interop)', 'OpenAI Assistants', 'Temporal (workflows)'],
+        timeline: [
+          { title: 'Week 1', desc: 'Build simple ReAct agent from scratch in .NET without a framework.' },
+          { title: 'Week 2–3', desc: 'SK Agent with 5+ tools — file ops, DB queries, HTTP calls, code exec.' },
+          { title: 'Week 4–5', desc: 'Multi-agent: orchestrator delegates to specialist agents; add critique loop.' },
+        ],
+        resources: [
+          { type: 'Paper', label: 'ReAct: Synergizing Reasoning and Acting in LLMs', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Docs', label: 'SK Agent Framework Documentation', color: '#f3e8ff', text: '#6d28d9' },
+          { type: 'Video', label: 'Andrew Ng — Agentic AI Patterns (deeplearning.ai)', color: '#dcfce7', text: '#15803d' },
+        ]
+      },
+      {
+        id: 'mlnet', label: 'ML.NET & Custom Models', icon: '📊', color: '#22c55e',
+        desc: 'Train and deploy custom ML models directly in .NET using ML.NET and ONNX without Python.',
+        duration: '3–4 weeks', level: 'Intermediate', tag: 'ML',
+        learn: [
+          { title: 'ML.NET Pipeline', desc: 'IDataView, estimators, transformers, training, cross-validation, metrics.' },
+          { title: 'AutoML', desc: 'ML.NET Model Builder for auto-experimentation, sweepable estimators.' },
+          { title: 'ONNX Runtime', desc: 'Import Python models (sklearn, PyTorch, TF) and run inference in .NET.' },
+          { title: 'TorchSharp / TensorFlow.NET', desc: 'Deep learning inference directly in .NET for custom neural networks.' },
+          { title: 'Text Classification', desc: 'Fine-tuned text classifiers for intent detection, sentiment, content moderation.' },
+          { title: 'Time-Series Forecasting', desc: 'SSA, deep learning forecasting for business KPI prediction in .NET.' },
+        ],
+        tools: ['ML.NET', 'ONNX Runtime .NET', 'Model Builder VS Extension', 'TorchSharp', 'Azure ML'],
+        timeline: [
+          { title: 'Week 1', desc: 'ML.NET classification + regression pipelines; use Model Builder.' },
+          { title: 'Week 2', desc: 'ONNX: export a sklearn model from Python, run inference in ASP.NET Core.' },
+          { title: 'Week 3–4', desc: 'TorchSharp fine-tuning + deploy as inference endpoint in .NET.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'ML.NET Documentation — microsoft.com', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Book', label: 'Machine Learning with ML.NET (Apress)', color: '#fef3c7', text: '#92400e' },
+          { type: 'Repo', label: 'dotnet/machinelearning GitHub samples', color: '#dcfce7', text: '#15803d' },
+        ]
+      },
+      {
+        id: 'finetuning', label: 'Fine-Tuning & Model Customization', icon: '🎛️', color: '#f43f5e',
+        desc: 'Customize LLMs for your domain using fine-tuning, PEFT, and prompt optimization strategies.',
+        duration: '3–4 weeks', level: 'Advanced', tag: 'Fine-tune',
+        learn: [
+          { title: 'OpenAI Fine-Tuning API', desc: 'JSONL dataset format, training jobs, hyperparameters, evaluation.' },
+          { title: 'Azure OpenAI Fine-Tuning', desc: 'Managed fine-tuning in Azure, deployment of custom models, versioning.' },
+          { title: 'LoRA / QLoRA', desc: 'Parameter-efficient fine-tuning for smaller models with limited GPU budget.' },
+          { title: 'Prompt Optimization', desc: 'DSPy, systematic prompt optimization, automatic few-shot selection.' },
+          { title: 'RLHF Basics', desc: 'Reinforcement Learning from Human Feedback — reward models and preference data.' },
+          { title: 'Evaluating Fine-Tuned Models', desc: 'Evals framework, A/B testing production models, regression detection.' },
+        ],
+        tools: ['OpenAI Fine-tune API', 'Azure ML', 'Hugging Face PEFT', 'Weights & Biases', 'DSPy'],
+        timeline: [
+          { title: 'Week 1', desc: 'Prepare dataset (100–1000 examples), fine-tune GPT-4o-mini on OpenAI.' },
+          { title: 'Week 2', desc: 'Deploy fine-tuned model to Azure OpenAI; build A/B testing framework.' },
+          { title: 'Week 3–4', desc: 'Explore LoRA with HuggingFace for custom domain tasks; eval with evals.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'OpenAI Fine-Tuning Guide', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Course', label: 'DeepLearning.AI — Finetuning LLMs (Sharon Zhou)', color: '#f3e8ff', text: '#6d28d9' },
+          { type: 'Article', label: 'LoRA paper — Hu et al. 2021 (arXiv)', color: '#fef3c7', text: '#92400e' },
+        ]
+      },
+      {
+        id: 'ai-observability', label: 'AI Observability & MLOps', icon: '📡', color: '#06b6d4',
+        desc: 'Monitor, evaluate, and maintain AI systems in production with proper observability and deployment practices.',
+        duration: '2–3 weeks', level: 'Advanced', tag: 'MLOps',
+        learn: [
+          { title: 'OpenTelemetry for AI', desc: 'Tracing LLM calls, token usage metrics, latency histograms in .NET.' },
+          { title: 'Prompt Flow / LangSmith', desc: 'Visual prompt testing, dataset-based evaluations, regression tracking.' },
+          { title: 'Guardrails & Safety', desc: 'Content filtering, PII detection, prompt injection detection, output validation.' },
+          { title: 'Cost Management', desc: 'Token budgets per user/request, model tiering strategy, caching ROI.' },
+          { title: 'Model Deployment CI/CD', desc: 'GitHub Actions pipelines for model versioning, deployment, rollback.' },
+          { title: 'Drift Detection', desc: 'Monitoring response quality over time, detecting distribution shift.' },
+        ],
+        tools: ['OpenTelemetry .NET', 'Azure AI Studio Evals', 'Prometheus + Grafana', 'Semantic Kernel Filters', 'Application Insights'],
+        timeline: [
+          { title: 'Week 1', desc: 'Add OTEL tracing + token metrics to existing AI .NET app.' },
+          { title: 'Week 2', desc: 'Build eval dataset + automated evaluation pipeline for your RAG app.' },
+          { title: 'Week 3', desc: 'Guardrails service: PII scrubbing, prompt injection detection, cost alerts.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'OpenTelemetry .NET SDK', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Docs', label: 'Azure AI Studio Evaluations', color: '#fef3c7', text: '#92400e' },
+          { type: 'Video', label: 'MLOps community talks — youtube/mlops-community', color: '#dcfce7', text: '#15803d' },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'phase4', label: 'Phase 4 — Expert AI Architecture', icon: '🏛️', color: '#a855f7', tag: 'Expert', tagColor: '#f3e8ff', tagText: '#6d28d9',
+    desc: 'Architect enterprise-scale AI systems, lead AI strategy, and stay at the cutting edge',
+    phase: true,
+    children: [
+      {
+        id: 'enterprise-ai', label: 'Enterprise AI Architecture', icon: '🏢', color: '#7c3aed',
+        desc: 'Design large-scale AI platforms — multi-tenant, secure, and cost-optimized for enterprise deployment.',
+        duration: '4–6 weeks', level: 'Expert', tag: 'Architecture',
+        learn: [
+          { title: 'AI Gateway Pattern', desc: 'Centralized routing, rate limiting, cost allocation, model abstraction layer.' },
+          { title: 'Multi-Tenant AI Apps', desc: 'Per-tenant model selection, data isolation, personalized fine-tuning.' },
+          { title: '.NET Aspire for AI', desc: 'Service orchestration, distributed tracing, AI service discovery in Aspire.' },
+          { title: 'Event-Driven AI', desc: 'Azure Service Bus / Event Grid for async AI processing, long-running jobs.' },
+          { title: 'AI on AKS', desc: 'GPU node pools, vLLM serving, horizontal pod autoscaling for inference.' },
+          { title: 'Responsible AI', desc: 'Fairness, transparency, accountability frameworks; Azure Responsible AI dashboard.' },
+        ],
+        tools: ['.NET Aspire', 'Azure APIM (AI Gateway)', 'AKS + GPU nodes', 'Azure Service Bus', 'vLLM'],
+        timeline: [
+          { title: 'Week 1–2', desc: 'Design AI gateway with APIM — route, rate limit, log, cost-allocate.' },
+          { title: 'Week 3–4', desc: '.NET Aspire orchestration for multi-service AI platform (RAG + Agent + API).' },
+          { title: 'Week 5–6', desc: 'AKS deployment with GPU nodes for local model serving (vLLM + Mistral).' },
+        ],
+        resources: [
+          { type: 'Docs', label: '.NET Aspire Documentation', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Book', label: 'Designing Distributed Systems — O\'Reilly', color: '#fef3c7', text: '#92400e' },
+          { type: 'Course', label: 'Microsoft AI-102 Certification prep', color: '#f3e8ff', text: '#6d28d9' },
+        ]
+      },
+      {
+        id: 'copilot-dev', label: 'Build Copilots with M365 & Teams', icon: '🤝', color: '#22c55e',
+        desc: 'Build custom AI copilots that integrate with Microsoft 365, Teams, and the Copilot Studio platform.',
+        duration: '3–4 weeks', level: 'Advanced', tag: 'Copilot',
+        learn: [
+          { title: 'Copilot Studio', desc: 'Topics, actions, knowledge sources, generative answers in Microsoft Copilot Studio.' },
+          { title: 'Teams Bot Framework', desc: 'Bot Framework SDK, Adaptive Cards, task modules, AI-powered bots.' },
+          { title: 'Microsoft Graph API', desc: 'Reading emails, calendar, SharePoint data to ground Copilots in org context.' },
+          { title: 'Declarative Copilots', desc: 'Custom declarative copilots in M365 with OpenAPI-defined actions.' },
+          { title: 'Copilot Extensions (Plugins)', desc: 'Building message extensions that expose your APIs to M365 Copilot.' },
+          { title: 'SharePoint + Copilot', desc: 'Viva Connections, SharePoint Embedded, AI-powered intranet experiences.' },
+        ],
+        tools: ['Copilot Studio', 'Teams Toolkit VS Code', 'Bot Framework SDK', 'Microsoft Graph SDK', 'Power Automate'],
+        timeline: [
+          { title: 'Week 1', desc: 'Copilot Studio: build a no-code Copilot with Graph API knowledge source.' },
+          { title: 'Week 2', desc: 'Teams Bot using Bot Framework + SK backend — deployed to Teams channel.' },
+          { title: 'Week 3–4', desc: 'Declarative Copilot with custom OpenAPI actions registered in M365.' },
+        ],
+        resources: [
+          { type: 'Docs', label: 'learn.microsoft.com/copilot-studio', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Docs', label: 'Teams AI Library Documentation', color: '#fef3c7', text: '#92400e' },
+          { type: 'Course', label: 'M365 Developer Bootcamp (free, Microsoft)', color: '#dcfce7', text: '#15803d' },
+        ]
+      },
+      {
+        id: 'cutting-edge', label: 'Emerging AI Capabilities', icon: '🚀', color: '#f59e0b',
+        desc: 'Stay ahead of the curve with the latest AI capabilities shipping into the .NET and Azure ecosystem.',
+        duration: 'Ongoing', level: 'Expert', tag: 'Emerging',
+        learn: [
+          { title: 'Multimodal AI', desc: 'GPT-4o vision, audio, video understanding — building rich media AI pipelines in .NET.' },
+          { title: 'Computer Use / Web Agents', desc: 'Claude Computer Use API, browser automation agents, screenshot reasoning.' },
+          { title: 'Real-Time Voice (WebRTC)', desc: 'OpenAI Realtime API, WebRTC audio in .NET — build voice AI assistants.' },
+          { title: 'o1 / Reasoning Models', desc: 'When to use reasoning models, structured output, managing longer inference times.' },
+          { title: 'Local AI / SLMs', desc: 'Ollama, LM Studio, Phi-4, running models on-device — privacy-first AI.' },
+          { title: 'AI-Assisted Coding', desc: 'GitHub Copilot Workspace, Cursor, writing AI-assisted test coverage, code review AI.' },
+        ],
+        tools: ['Ollama', 'Phi-4', 'OpenAI Realtime API', 'GitHub Copilot Workspace', 'Azure AI Foundry'],
+        timeline: [
+          { title: 'Ongoing', desc: 'Follow .NET Blog, Azure AI updates, SK release notes, AI research weekly.' },
+          { title: 'Monthly', desc: 'Build one small demo with a newly released capability.' },
+          { title: 'Quarterly', desc: 'Evaluate and integrate 1–2 new AI capabilities into production apps.' },
+        ],
+        resources: [
+          { type: 'Blog', label: '.NET Blog — devblogs.microsoft.com/dotnet', color: '#dbeafe', text: '#1d4ed8' },
+          { type: 'Podcast', label: '.NET Rocks! AI episodes', color: '#dcfce7', text: '#15803d' },
+          { type: 'Newsletter', label: 'The Batch by Andrew Ng (weekly AI)', color: '#fef3c7', text: '#92400e' },
+        ]
+      },
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+//  TREE BUILDER
+// ═══════════════════════════════════════════════════════
+const treePanel = document.getElementById('treePanel');
+const detailPanel = document.getElementById('detailPanel');
+let activeId = null;
+const expandState = {};
+
+function buildTree(nodes, depth, ancestorLines) {
+  nodes.forEach((node, idx) => {
+    const isLast = idx === nodes.length - 1;
+
+    if (node.phase) {
+      // Phase header
+      const ph = document.createElement('div');
+      ph.className = 'phase-header';
+      ph.innerHTML = `<span></span>${node.icon} ${node.label}<span></span>`;
+      ph.style.color = node.color;
+      treePanel.appendChild(ph);
+
+      if (node.children) {
+        buildTree(node.children, depth, []);
+      }
+      return;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'node';
+
+    // Build indent HTML
+    let indentHtml = '';
+    for (let i = 0; i < depth; i++) {
+      const showLine = ancestorLines[i] !== false;
+      indentHtml += `<div class="indent-seg ${showLine ? 'has-line' : ''} ${(i === depth-1 && isLast) ? 'is-last' : ''}"></div>`;
+    }
+
+    const hasChildren = node.children && node.children.length > 0;
+    const toggleIcon = hasChildren ? '▼' : '●';
+
+    const btn = document.createElement('button');
+    btn.className = 'node-btn';
+    btn.dataset.id = node.id;
+    btn.innerHTML = `
+      <div class="node-indent">${indentHtml}</div>
+      <div class="node-toggle">${hasChildren ? '▶' : '•'}</div>
+      <div class="node-icon" style="background:${node.color}22;color:${node.color}">${node.icon}</div>
+      <div class="node-label">${node.label}</div>
+      ${node.tag ? `<span class="node-tag" style="background:${getTagStyle(node).bg};color:${getTagStyle(node).text}">${node.tag}</span>` : ''}
+    `;
+
+    btn.addEventListener('click', () => {
+      if (hasChildren) {
+        const childrenEl = wrap.querySelector(':scope > .children');
+        if (childrenEl) {
+          const collapsed = childrenEl.classList.contains('collapsed');
+          childrenEl.classList.toggle('collapsed', !collapsed);
+          btn.querySelector('.node-toggle').textContent = collapsed ? '▼' : '▶';
+        }
+      }
+      selectNode(node, btn);
+    });
+
+    wrap.appendChild(btn);
+
+    if (hasChildren) {
+      const childrenWrap = document.createElement('div');
+      childrenWrap.className = 'children';
+      const newAncestors = [...ancestorLines, !isLast];
+      buildTree(node.children, depth + 1, newAncestors);
+      // We'll append after recursion — need a different approach
+      // Let's use a container approach
+      childrenWrap.append(...Array.from(treePanel.children).splice(treePanel.children.length - 0));
+      wrap.appendChild(childrenWrap);
+    }
+
+    treePanel.appendChild(wrap);
+  });
+}
+
+function getTagStyle(node) {
+  const map = {
+    'Core': { bg: '#f3e8ff', text: '#6d28d9' },
+    'Backend': { bg: '#cffafe', text: '#0e7490' },
+    'Data': { bg: '#fef3c7', text: '#b45309' },
+    'Frontend': { bg: '#ffe4e6', text: '#9f1239' },
+    'Concepts': { bg: '#f0fdf4', text: '#166534' },
+    'SDK': { bg: '#ede9fe', text: '#4c1d95' },
+    'API': { bg: '#fef9c3', text: '#854d0e' },
+    'RAG': { bg: '#e0f2fe', text: '#075985' },
+    'Agents': { bg: '#fdf4ff', text: '#701a75' },
+    'ML': { bg: '#f0fdf4', text: '#14532d' },
+    'Fine-tune': { bg: '#fff1f2', text: '#881337' },
+    'MLOps': { bg: '#e0f2fe', text: '#0c4a6e' },
+    'Architecture': { bg: '#ede9fe', text: '#3b0764' },
+    'Copilot': { bg: '#f0fdf4', text: '#14532d' },
+    'Emerging': { bg: '#fffbeb', text: '#78350f' },
+  };
+  return map[node.tag] || { bg: '#f3f4f6', text: '#374151' };
+}
+
+// Better tree builder
+function buildTreeV2() {
+  treePanel.innerHTML = '';
+
+  function renderNode(node, depth, lines) {
+    if (node.phase) {
+      const ph = document.createElement('div');
+      ph.className = 'phase-header';
+      ph.innerHTML = `<span></span>${node.icon} ${node.label}<span></span>`;
+      ph.style.color = node.color;
+      treePanel.appendChild(ph);
+      if (node.children) {
+        node.children.forEach((child, i) => renderNode(child, depth, []));
+      }
+      return;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'node';
+
+    let indentHtml = `<div style="width:${depth * 16}px;flex-shrink:0"></div>`;
+
+    const btn = document.createElement('button');
+    btn.className = 'node-btn';
+    btn.dataset.id = node.id;
+
+    const ts = getTagStyle(node);
+
+    btn.innerHTML = `
+      ${indentHtml}
+      <div class="node-toggle">▶</div>
+      <div class="node-icon" style="background:${node.color}25;color:${node.color}">${node.icon}</div>
+      <div class="node-label">${node.label}</div>
+      ${node.tag ? `<span class="node-tag" style="background:${ts.bg};color:${ts.text}">${node.tag}</span>` : ''}
+    `;
+
+    btn.addEventListener('click', () => selectNode(node, btn));
+
+    wrap.appendChild(btn);
+    treePanel.appendChild(wrap);
+  }
+
+  roadmap.forEach(phase => renderNode(phase, 0, []));
+}
+
+function selectNode(node, btn) {
+  // Deactivate all
+  document.querySelectorAll('.node-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeId = node.id;
+  renderDetail(node);
+}
+
+// ═══════════════════════════════════════════════════════
+//  DETAIL RENDERER
+// ═══════════════════════════════════════════════════════
+function renderDetail(node) {
+  const empty = document.getElementById('emptyState');
+  if (empty) empty.style.display = 'none';
+
+  // Remove old detail
+  detailPanel.querySelectorAll('.detail-card').forEach(el => el.remove());
+
+  const ts = getTagStyle(node);
+  const card = document.createElement('div');
+  card.className = 'detail-card visible';
+
+  // Header
+  let html = `
+    <div class="dc-header">
+      <div class="dc-icon-big" style="background:${node.color}22;color:${node.color}">${node.icon}</div>
+      <div class="dc-title">
+        <h2>${node.label}</h2>
+        <p>${node.desc}</p>
+        <div class="dc-meta">
+          ${node.duration ? `<span class="meta-chip" style="background:#1c2128;border-color:${node.color}44;color:${node.color}">⏱ ${node.duration}</span>` : ''}
+          ${node.level ? `<span class="meta-chip" style="background:#1c2128;border-color:#30363d;color:#8b949e">📈 ${node.level}</span>` : ''}
+          ${node.tag ? `<span class="meta-chip" style="background:${ts.bg}22;border-color:${ts.text}44;color:${ts.text}">🏷 ${node.tag}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // What to Learn
+  if (node.learn) {
+    html += `<div class="section">
+      <div class="section-title">📚 What You Need to Learn</div>
+      <div class="learn-grid">`;
+    node.learn.forEach(item => {
+      html += `<div class="learn-item">
+        <div class="learn-item-title" style="color:${node.color}">${item.title}</div>
+        <div class="learn-item-desc">${item.desc}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Learning Timeline
+  if (node.timeline) {
+    html += `<div class="section">
+      <div class="section-title">🗓 Learning Timeline</div>
+      <div class="timeline">`;
+    node.timeline.forEach(t => {
+      html += `<div class="tl-item">
+        <div class="tl-title">${t.title}</div>
+        <div class="tl-desc">${t.desc}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Tools
+  if (node.tools) {
+    const colors = ['#7c3aed','#06b6d4','#22c55e','#f59e0b','#f43f5e','#a855f7','#ec4899'];
+    html += `<div class="section">
+      <div class="section-title">🛠 Tools & Technologies</div>
+      <div class="tools-row">`;
+    node.tools.forEach((t, i) => {
+      const c = colors[i % colors.length];
+      html += `<div class="tool-pill"><span class="tool-dot" style="background:${c}"></span>${t}</div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Resources
+  if (node.resources) {
+    html += `<div class="section">
+      <div class="section-title">🔗 Learning Resources</div>
+      <div class="resource-list">`;
+    node.resources.forEach(r => {
+      html += `<div class="resource-item">
+        <span class="resource-type" style="background:${r.color};color:${r.text}">${r.type}</span>
+        <span>${r.label}</span>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  card.innerHTML = html;
+  detailPanel.appendChild(card);
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+buildTreeV2();
+</script>
+</body>
+</html>
